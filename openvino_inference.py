@@ -111,7 +111,7 @@ def main():
 
     try:
         model = TritonInstanceSegmentationModel(model_name="yolov8n", server_url=server_url)
-        output_data = model.infer("/home/solomon/openvino_deployment/test.jpg")
+        output_data = model.infer("./test1.jpg")
         # logger.info(output_data)
         logger.info("Inference outputs:")
         for name, data in zip("output0", output_data):
@@ -119,7 +119,7 @@ def main():
 
 
         if output_data is not None:
-            model.draw_annotations("/home/solomon/openvino_deployment/test.jpg", output_data)
+            model.draw_annotations("./test1.jpg", output_data)
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
 
