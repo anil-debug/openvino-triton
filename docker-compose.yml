@@ -1,3 +1,39 @@
+# version: '3.8'
+
+# services:
+#   tritonserver:
+#     image: nvcr.io/nvidia/tritonserver:24.03-py3
+#     command: tritonserver --model-repository=/models
+#     ports:
+#       - "8000:8000"
+#       - "8001:8001"
+#       - "8002:8002"
+#     volumes:
+#       - ./models:/models
+#     deploy:
+#       resources:
+#         reservations:
+#           devices:
+#             - driver: nvidia
+#               capabilities: [ gpu ]
+
+#   flask_api:
+#     build:
+#       context: ./flask_api
+#       dockerfile: Dockerfile
+#     ports:
+#       - "5000:5000"
+#     depends_on:
+#       - tritonserver
+
+#   streamlit_app:
+#     build:
+#       context: ./streamlit_app
+#       dockerfile: Dockerfile
+#     ports:
+#       - "8501:8501"
+#     depends_on:
+#       - tritonserver
 version: '3.8'
 
 services:
@@ -9,10 +45,36 @@ services:
       - "8001:8001"
       - "8002:8002"
     volumes:
-      - ./models:/models
+      - /home/solomon/openvino_models:/models
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
               capabilities: [ gpu ]
+  flask_api:
+    build:
+      context: ./flask_api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - tritonserver
+
+  streamlit_api:
+    build:
+      context: ./streamlit_app
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    depends_on:
+      - flask_api
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
