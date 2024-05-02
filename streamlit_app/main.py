@@ -11,8 +11,8 @@ def main():
         st.image(uploaded_image, caption='Uploaded Image', use_column_width=True)
 
         if st.button('Process'):
-            # response = requests.post('http://0.0.0.0:5000/hello', files={'image': uploaded_image})
-            response = requests.post('http://0.0.0.0:5000/hello')
+            response = requests.post('http://0.0.0.0:5000/hello', files={'image': uploaded_image})
+            # response = requests.post('http://0.0.0.0:5000/hello')
 
             if response.status_code == 200:
                 output_data = response.json()

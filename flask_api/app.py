@@ -67,7 +67,7 @@ def hello():
             return jsonify({'error': str(e)}), 400
 
 
-
+@app.route('/infer', methods=['POST'])
 def infer():
     try:
         # Read the uploaded image from the request files

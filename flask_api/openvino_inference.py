@@ -33,7 +33,7 @@ class TritonInstanceSegmentationModel:
         normalized_image = normalized_image.transpose(2, 0, 1)  # Transpose dimensions
         return normalized_image
 
-    def infer(self, image_path):
+    def infer2(self, image_path):
         try:
             normalized_image = self.preprocess_image(image_path)
             input_tensor = InferInput(self.input_name, self.input_shape, "FP32")
@@ -47,7 +47,23 @@ class TritonInstanceSegmentationModel:
         except Exception as e:
             logger.error(f"Inference error: {str(e)}")
             return None
+    def infer(self, image_data):
+        try:
+            normalized_image = self.preprocess_image(image_data)
+            if normalized_image is None:
+                return None  # If preprocessing fails, return None
+            
+            input_tensor = InferInput(self.input_name, self.input_shape, "FP32")
+            input_tensor.set_data_from_numpy(normalized_image)
 
+            outputs = [InferRequestedOutput(output, binary_data=True) for output in self.output_names]
+            response = self.client.infer(self.model_name, inputs=[input_tensor], outputs=outputs)
+            output_data = [response.as_numpy(name) for name in self.output_names]
+
+            return output_data
+        except Exception as e:
+            logger.error(f"Inference error: {str(e)}")
+            return None
     def draw_annotations(self, image_path, output_data):
         try:
             image = cv2.imread(image_path)
@@ -111,7 +127,7 @@ def main():
 
     try:
         model = TritonInstanceSegmentationModel(model_name="yolov8n", server_url=server_url)
-        output_data = model.infer("./test1.jpg")
+        output_data = model.infer("/home/solomon/Desktop/openvino_triton_inference/test1.jpg")
         # logger.info(output_data)
         logger.info("Inference outputs:")
         for name, data in zip("output0", output_data):
@@ -119,7 +135,7 @@ def main():
 
 
         if output_data is not None:
-            model.draw_annotations("./test1.jpg", output_data)
+            model.draw_annotations("/home/solomon/Desktop/openvino_triton_inference/test1.jpg", output_data)
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
 
